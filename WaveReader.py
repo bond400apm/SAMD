@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import numpy as np
+import waveidentifier as wi
 from scipy.stats import norm
 
 #---- Length of waveform
@@ -11,7 +12,7 @@ Start_Baseline = 250
 End_Baseline   = 300
 
 #---- Pulse information
-Number_Of_Pulses  = 7000
+Number_Of_Pulses  = 10
 Pulse_List_Bottom = []
 Pulse_List_Top    = []
 
@@ -43,19 +44,28 @@ for pulse in range(Number_Of_Pulses):
         if (i >= Start_Baseline and i < End_Baseline):
             Pedestal_List_Bottom.append(Waveform_Bottom_PMT[i])
             Pedestal_List_Top.append(Waveform_Top_PMT[i])
-
+    Bottom = wi.PulseIdentifier(Processing_Waveform_Bottom)
+    Top = wi.PulseIdentifier(Processing_Waveform_Top)
+    Bottom.Process(Start_Baseline,End_Baseline)
+    Top.Process(Start_Baseline,End_Baseline)
+    
     #---- Find pedestal and subtract from the waveforms
-    Pedestal_Bottom = sum(Pedestal_List_Bottom)/(End_Baseline - Start_Baseline)
+#    Pedestal_Bottom = sum(Pedestal_List_Bottom)/(End_Baseline - Start_Baseline)
+    Pedestal_Bottom = Bottom.Pedstal
+    Pedestal_Top = Top.Pedstal
     Processing_Waveform_Bottom[:] = [Processing_Waveform_Bottom - Pedestal_Bottom for Processing_Waveform_Bottom in Processing_Waveform_Bottom]
-    Pedestal_Top = sum(Pedestal_List_Top)/(End_Baseline - Start_Baseline)
+#    Pedestal_Top = sum(Pedestal_List_Top)/(End_Baseline - Start_Baseline)
     Processing_Waveform_Top[:] = [Processing_Waveform_Top - Pedestal_Top for Processing_Waveform_Top in Processing_Waveform_Top]
+    if Bottom.data_valid and Top.data_valid:
+        #---- Integrate the pulses
+        Total_Integral_Bottom = 0
+        Total_Integral_Top    = 0
+        for i in range(Top.PulseStart,Top.PulseEnd):
+            Total_Integral_Top    += Processing_Waveform_Top[i]
+        for i in range(Bottom.PulseStart,Bottom.PulseEnd):
+            Total_Integral_Bottom += Processing_Waveform_Bottom[i]
 
-    #---- Integrate the pulses
-    Total_Integral_Bottom = 0
-    Total_Integral_Top    = 0
-    for i in range(30,240):
-        Total_Integral_Top    += Processing_Waveform_Top[i]
-        Total_Integral_Bottom += Processing_Waveform_Bottom[i]
+
 
 #    print(Total_Integral_Top)
 
