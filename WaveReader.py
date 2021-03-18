@@ -3,6 +3,11 @@ import matplotlib.mlab as mlab
 import numpy as np
 import waveidentifier as wi
 from scipy.stats import norm
+from scipy.optimize import curve_fit
+
+#---- Define a Gaussian function
+def Gaussian(x, Amp1, mu1, sigma1):
+    return Amp1*np.exp(-1.0*(x-mu1)**2/(2*sigma1**2))
 
 #---- Length of waveform
 LenWaveform = 300
@@ -12,7 +17,7 @@ Start_Baseline = 250
 End_Baseline   = 300
 
 #---- Pulse information
-Number_Of_Pulses  = 10
+Number_Of_Pulses  = 7000
 Pulse_List_Bottom = []
 Pulse_List_Top    = []
 
@@ -59,9 +64,9 @@ for pulse in range(Number_Of_Pulses):
     if Bottom.data_valid and Top.data_valid:
         #---- Integrate the pulses
         Total_Integral_Bottom = 0
-        Total_Integral_Top    = 0
+        Total_Integral_Top = 0
         for i in range(Top.PulseStart,Top.PulseEnd):
-            Total_Integral_Top    += Processing_Waveform_Top[i]
+            Total_Integral_Top += Processing_Waveform_Top[i]
         for i in range(Bottom.PulseStart,Bottom.PulseEnd):
             Total_Integral_Bottom += Processing_Waveform_Bottom[i]
 
@@ -77,18 +82,16 @@ for pulse in range(Number_Of_Pulses):
     
 #---- Find I/I_0 for all the pulses
 Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
-
+#Create Fit bins
+fit_x = np.linspace(0,3,100)
 #---- Fit I/I_0
-mean,std=norm.fit(Ratio)
-print("Mean:    ",mean,"    Standard Deviation:    ",std)
-
-plt.hist(Ratio,bins=100,density=True)
+fit_entries, fit_bins = np.histogram(Ratio,bins=fit_x)
+binscenters = np.array([0.5 * (fit_x[i] + fit_x[i+1]) for i in range(len(fit_x)-1)])
+popt, pcov = curve_fit(Gaussian, xdata=binscenters, ydata=fit_entries)
+print("Mean = {}, Std = {}".format(popt[1],popt[2]))
+plt.hist(Ratio,bins=100)
 plt.xlabel('I/I${_0}$')
 plt.ylabel('Total Per Bin(A.U.)')
-xmin, xmax = plt.xlim()
-x = np.linspace(xmin, xmax, 1000)
-y = norm.pdf(x, mean, std)
-plt.plot(x, y)
-#y = mlab.normpdf(bins, mu, sigma)
+y = Gaussian(binscenters,*popt)
+plt.plot(binscenters, y)
 plt.show()
-#print(Waveform_Bottom_PMT)

@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import random
 # ---- the trigger height of noise
 edge_trigger = -50
 # window length of finding Pulse edge
@@ -10,7 +12,7 @@ class PulseIdentifier():
         self.lenwavef = len(waveform)
         self.derivative = []
         self.ped_index = []
-        self.PulseStart = 70
+        self.PulseStart = 20
         self.PulseEnd = 0
         self.Pedstal = 0
         self.data_valid = True
@@ -35,7 +37,7 @@ class PulseIdentifier():
                 self.ped_index.append(i)
         ped[:] = [self.waveform[i] for i in self.ped_index]
         pedestal = sum(ped)/len(ped)
-        return pedestal
+        self.Pedstal = pedestal
 
     def FindPulseStart(self):
         wave_window = []
@@ -62,7 +64,7 @@ class PulseIdentifier():
         while IsPulse == True:
             wave_window[:] = [self.waveform[i] for i in range(time-window_length+1,time+1)]
             derivative_window[:] = [self.derivative[j] for j in range(time-window_length+1,time+1)]
-            if (wave_window[window_length-1] - self.Pedstal) < abs(edge_trigger) and derivative_window[-1]>0:
+            if abs(self.waveform[time] - self.Pedstal) < abs(edge_trigger):
                 IsPulse = False
             else:
                 IsPusle = True
@@ -71,11 +73,40 @@ class PulseIdentifier():
         return time
     def Process(self,start_b,end_b):
         self.Finderiv()
-        self.Pedstal = self.Findped(start_b,end_b)
+        self.Findped(start_b,end_b)
         start = self.FindPulseStart()
-        end = self.FindPulseEnd()
-        print("Pedstal = ",self.Pedstal)
-        print("start = {}, end = {}".format(start,end))
+        if self.data_valid:
+            end = self.FindPulseEnd()
+        else:
+            self.end = 300
+if __name__ == "__main__":
+    #---- Length of waveform
+    LenWaveform = 300
+
+    #---- Inputs for pedestal calculation
+    Start_Baseline = 250
+    End_Baseline   = 300
+
+    #---- Pulse information
+    Number_Of_Pulses  = 7000
+    Processing_Waveform = []
+    with open("wave0.txt") as file:
+        Waveform_Bottom_PMT = [int(line.strip()) for line in file]
+    Pulse_id = random.randint(1,Number_Of_Pulses)
+    for i in range(LenWaveform):
+        Processing_Waveform.append(Waveform_Bottom_PMT[i+LenWaveform*Pulse_id])
+    Test_Pulse = PulseIdentifier(Processing_Waveform)
+    Test_Pulse.Process(250,300)
+    if Test_Pulse.data_valid:
+        Real_Pulse = [Test_Pulse.Pedstal - Processing_Waveform[i] for i in range(Test_Pulse.PulseStart,Test_Pulse.PulseEnd)]
+
+
+    plt.ylabel('Modified Pulse')
+    x = range(Test_Pulse.PulseStart,Test_Pulse.PulseEnd)
+    y = Real_Pulse
+    plt.plot(x,y)
+    plt.show()
+
 
 
 
