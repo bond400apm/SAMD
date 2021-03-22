@@ -52,7 +52,7 @@ class PulseIdentifier():
             else:
                 IsPusle = False
                 time = time + 1
-        if time >= 150:
+        if time >= 150 or time <= 10:
             self.data_valid = False
         self.PulseStart = time
         return time
@@ -61,15 +61,15 @@ class PulseIdentifier():
         derivative_window = []
         IsPulse = True
         time = self.PulseStart+window_length
-        while IsPulse == True:
-            wave_window[:] = [self.waveform[i] for i in range(time-window_length+1,time+1)]
-            derivative_window[:] = [self.derivative[j] for j in range(time-window_length+1,time+1)]
+        while IsPulse == True and time<250:
             if abs(self.waveform[time] - self.Pedstal) < abs(edge_trigger):
                 IsPulse = False
             else:
                 IsPusle = True
                 time = time + 1
         self.PulseEnd = time
+        if time>240:
+            self.data_valid = False
         return time
     def Process(self,start_b,end_b):
         self.Finderiv()

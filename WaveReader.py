@@ -46,9 +46,6 @@ for pulse in range(Number_Of_Pulses):
         Processing_Waveform_Bottom.append(Waveform_Bottom_PMT[i+LenWaveform*Iterator])
         Processing_Waveform_Top.append(Waveform_Top_PMT[i+LenWaveform*Iterator])
 
-        if (i >= Start_Baseline and i < End_Baseline):
-            Pedestal_List_Bottom.append(Waveform_Bottom_PMT[i])
-            Pedestal_List_Top.append(Waveform_Top_PMT[i])
     Bottom = wi.PulseIdentifier(Processing_Waveform_Bottom)
     Top = wi.PulseIdentifier(Processing_Waveform_Top)
     Bottom.Process(Start_Baseline,End_Baseline)
