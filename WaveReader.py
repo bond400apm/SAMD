@@ -4,7 +4,13 @@ import numpy as np
 import waveidentifier as wi
 from scipy.stats import norm
 from scipy.optimize import curve_fit
+import argparse
 
+# Instantiate the parser
+parser = argparse.ArgumentParser()
+# Optional argument
+parser.add_argument('--Alignment',action='store_true',help='Use Alignment method')
+args = parser.parse_args()
 #---- Define a Gaussian function
 def Gaussian(x, Amp1, mu1, sigma1):
     return Amp1*np.exp(-1.0*(x-mu1)**2/(2*sigma1**2))
@@ -58,10 +64,10 @@ for pulse in range(Number_Of_Pulses):
     Processing_Waveform_Bottom[:] = [Processing_Waveform_Bottom - Pedestal_Bottom for Processing_Waveform_Bottom in Processing_Waveform_Bottom]
 #    Pedestal_Top = sum(Pedestal_List_Top)/(End_Baseline - Start_Baseline)
     Processing_Waveform_Top[:] = [Processing_Waveform_Top - Pedestal_Top for Processing_Waveform_Top in Processing_Waveform_Top]
+    Total_Integral_Bottom = 0
+    Total_Integral_Top = 0
     if Bottom.data_valid and Top.data_valid:
-        #---- Integrate the pulses
-        Total_Integral_Bottom = 0
-        Total_Integral_Top = 0
+        #---- Integrate the pulse
         for i in range(Top.PulseStart,Top.PulseEnd):
             Total_Integral_Top += Processing_Waveform_Top[i]
         for i in range(Bottom.PulseStart,Bottom.PulseEnd):
@@ -71,24 +77,34 @@ for pulse in range(Number_Of_Pulses):
 
 #    print(Total_Integral_Top)
 
-    if (Total_Integral_Bottom < -10000):
+    if (Total_Integral_Bottom < -10000 and Total_Integral_Top < -1000):
         Pulse_List_Bottom.append(Total_Integral_Bottom)
         Pulse_List_Top.append(Total_Integral_Top)
 
     Iterator += 1
     
 #---- Find I/I_0 for all the pulses
-Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
-#Create Fit bins
-fit_x = np.linspace(0,3,100)
-#---- Fit I/I_0
-fit_entries, fit_bins = np.histogram(Ratio,bins=fit_x)
-binscenters = np.array([0.5 * (fit_x[i] + fit_x[i+1]) for i in range(len(fit_x)-1)])
-popt, pcov = curve_fit(Gaussian, xdata=binscenters, ydata=fit_entries)
-print("Mean = {}, Std = {}".format(popt[1],popt[2]))
-plt.hist(Ratio,bins=100)
-plt.xlabel('I/I${_0}$')
-plt.ylabel('Total Per Bin(A.U.)')
-y = Gaussian(binscenters,*popt)
-plt.plot(binscenters, y)
-plt.show()
+if args.Alignment == False:
+    if len(Pulse_List_Top)>(Number_Of_Pulses/2):
+        Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
+        #Create Fit bins
+        fit_x = np.linspace(0,3,100)
+        #---- Fit I/I_0
+        fit_entries, fit_bins = np.histogram(Ratio,bins=fit_x)
+        binscenters = np.array([0.5 * (fit_x[i] + fit_x[i+1]) for i in range(len(fit_x)-1)])
+        popt, pcov = curve_fit(Gaussian, xdata=binscenters, ydata=fit_entries)
+        print("Mean = {}, Std = {}".format(popt[1],abs(popt[2])))
+        plt.hist(Ratio,bins=100)
+        plt.xlabel('I/I${_0}$')
+        plt.ylabel('Total Per Bin(A.U.)')
+        y = Gaussian(binscenters,3.5*abs(popt[0])/5,abs(popt[1]),abs(popt[2]))
+        plt.plot(binscenters, y)
+        plt.show()
+    else:
+        print("Not Enough data")
+else:
+    if len(Pulse_List_Top)>(Number_Of_Pulses/10):
+        print(sum(Pulse_List_Top)/len(Pulse_List_Top))
+    else:
+        print("N/A")
+
