@@ -6,8 +6,7 @@ Scanning_Angle=0
 Scanning_Angle_Increment=1
 Scanning_Pitch=0
 Scanning_Pitch_Increment=1
-Pause=53
-
+SECONDS=0
 while [ $Scanning_Angle -lt 10 ]; do
     while [ $Scanning_Pitch -lt 10 ]; do
 
@@ -15,6 +14,8 @@ while [ $Scanning_Angle -lt 10 ]; do
 	(echo $Scanning_Angle && echo " " && echo $Scanning_Pitch && python3 WaveReader.py --Alignment && echo "") >> Output_Charge_Integral.txt
 	
 	let Scanning_Pitch=Scanning_Pitch+$Scanning_Pitch_Increment
+	now=$SECONDS
+	Pause=$((60-$(($now % 60))))
 	sleep $Pause
 	
     done
