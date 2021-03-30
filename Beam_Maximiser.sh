@@ -15,7 +15,7 @@ while [ $Scanning_Angle -lt 10 ]; do
 	
 	let Scanning_Pitch=Scanning_Pitch+$Scanning_Pitch_Increment
 	now=$SECONDS
-	Pause=$((60-$(($now % 60))))
+	Pause=$((61-$(($now % 61))))
 	sleep $Pause
 	
     done
