@@ -7,6 +7,8 @@ Scanning_Angle_Increment=1
 Scanning_Pitch=0
 Scanning_Pitch_Increment=1
 SECONDS=0
+Stage_time=0.3
+Iterator=1
 while [ $Scanning_Angle -lt 10 ]; do
     while [ $Scanning_Pitch -lt 10 ]; do
 
@@ -15,8 +17,10 @@ while [ $Scanning_Angle -lt 10 ]; do
 	
 	let Scanning_Pitch=Scanning_Pitch+$Scanning_Pitch_Increment
 	now=$SECONDS
-	Pause=$((61-$(($now % 61))))
+	Pause=`echo 60-$(($now % 60))+$Stage_time*$Iterator | bc`
+	echo $Pause
 	sleep $Pause
+	let Iterator= Iterator+1
 	
     done
 
