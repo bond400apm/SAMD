@@ -7,7 +7,7 @@ Scanning_Angle_Increment=1
 Scanning_Pitch=0
 Scanning_Pitch_Increment=1
 SECONDS=0
-Stage_time=0.3
+Stage_time=0.54
 Iterator=1
 while [ $Scanning_Angle -lt 10 ]; do
     while [ $Scanning_Pitch -lt 10 ]; do
