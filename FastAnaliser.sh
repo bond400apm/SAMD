@@ -1,5 +1,5 @@
 #!/bin/bash
-rm Output_Charge_Integral.txt
+rm ./Output_Charge_Intergral.txt
 for FILE in ./wavedata/top*; do
 	rm wave1.txt
 	cp $FILE ./wave1.txt
