@@ -4,7 +4,7 @@ mirror_range = 0.2
 stage_range = 0.2
 
 
-with open("Output_Charge_Intergral.txt") as file:
+with open("Output_Charge_Intergral2.txt") as file:
     Intensity = [abs(float(line.strip())) for line in file]
 
 x = range(len(Intensity))

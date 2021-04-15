@@ -85,7 +85,7 @@ for pulse in range(Number_Of_Pulses):
     
 #---- Find I/I_0 for all the pulses
 if args.Alignment == False:
-    if len(Pulse_List_Top)>(Number_Of_Pulses/2):
+    if len(Pulse_List_Top)>(Number_Of_Pulses/10):
         Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
         #Create Fit bins
         fit_x = np.linspace(0,3,100)
