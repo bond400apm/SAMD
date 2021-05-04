@@ -5,7 +5,7 @@ edge_trigger = -50
 # window length of finding Pulse edge
 window_length = 5
 # Pulse height trigger
-Pulse_height = 400
+Pulse_height = 200
 class PulseIdentifier():
     def __init__(self,waveform):
         self.waveform = waveform
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     #---- Pulse information
     Number_Of_Pulses  = 7000
     Processing_Waveform = []
-    with open("wave1.txt") as file:
+    with open("wave0.txt") as file:
         Waveform_Bottom_PMT = [int(line.strip()) for line in file]
     Pulse_id = random.randint(1,Number_Of_Pulses)
     for i in range(LenWaveform):

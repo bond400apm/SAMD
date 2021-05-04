@@ -103,8 +103,9 @@ if args.Alignment == False:
     else:
         print("Not Enough data")
 else:
+    Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
     if len(Pulse_List_Top)>(Number_Of_Pulses/10):
-        print(sum(Pulse_List_Top)/len(Pulse_List_Top))
+        print('{} {} {}'.format(sum(Ratio)/len(Ratio),sum(Pulse_List_Top)/len(Pulse_List_Top),sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)))
     else:
         print("N/A")
 

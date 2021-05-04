@@ -12,6 +12,8 @@ while [ $Scanning_Angle -lt 10 ]; do
     while [ $Scanning_Pitch -lt 10 ]; do
 	(echo "s" && sleep 1s && echo "W" && sleep 3s && echo "s" && echo "q") | wavedump
 	cp wave1.txt ./wavedata/topwave$Scanning_Angle$Scanning_Pitch.txt
+	cp wave0.txt ./wavedata/botwave$Scanning_Angle$Scanning_Pitch.txt
+
 	let Scanning_Pitch=Scanning_Pitch+$Scanning_Pitch_Increment
 	now=`date +%s%2N`
 	Pause=`echo 10-$(($now - $old))/100+$Stage_time | bc -l`
