@@ -37,9 +37,10 @@ with open("wave1.txt") as file:
     Waveform_Top_PMT = [int(line.strip()) for line in file]
 
 Iterator = 0
-
+pulse = 0
+invalid_pulse_number = 0
 #---- Iterate over the number of pulses given
-for pulse in range(Number_Of_Pulses):
+while pulse < Number_Of_Pulses and Iterator < len(Waveform_Bottom_PMT)/LenWaveform:
 
     #---- Temporary lists for each pulse
     Processing_Waveform_Top    = []
@@ -72,14 +73,17 @@ for pulse in range(Number_Of_Pulses):
             Total_Integral_Top += Processing_Waveform_Top[i]
         for i in range(Bottom.PulseStart,Bottom.PulseEnd):
             Total_Integral_Bottom += Processing_Waveform_Bottom[i]
+    else:
+        invalid_pulse_number += 1
 
 
 
 #    print(Total_Integral_Top)
 
-    if (Total_Integral_Bottom < -10000 and Total_Integral_Top < -1000):
+    if (Total_Integral_Bottom < -2000 and Total_Integral_Top < -2000):
         Pulse_List_Bottom.append(Total_Integral_Bottom)
         Pulse_List_Top.append(Total_Integral_Top)
+        pulse += 1
 
     Iterator += 1
     
@@ -100,6 +104,7 @@ if args.Alignment == False:
         y = Gaussian(binscenters,3.5*abs(popt[0])/5,abs(popt[1]),abs(popt[2]))
         plt.plot(binscenters, y)
         plt.show()
+
     else:
         print("Not Enough data")
 else:
@@ -108,4 +113,5 @@ else:
         print('{} {} {}'.format(sum(Ratio)/len(Ratio),sum(Pulse_List_Top)/len(Pulse_List_Top),sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)))
     else:
         print("N/A")
+        print("invalid Pulse number = {}".format(invalid_pulse_number))
 

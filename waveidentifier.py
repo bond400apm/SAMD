@@ -5,7 +5,7 @@ edge_trigger = -50
 # window length of finding Pulse edge
 window_length = 5
 # Pulse height trigger
-Pulse_height = 200
+Pulse_height = 250
 class PulseIdentifier():
     def __init__(self,waveform):
         self.waveform = waveform
@@ -99,7 +99,8 @@ if __name__ == "__main__":
     Test_Pulse.Process(250,300)
     if Test_Pulse.data_valid:
         Real_Pulse = [Test_Pulse.Pedstal - Processing_Waveform[i] for i in range(Test_Pulse.PulseStart,Test_Pulse.PulseEnd)]
-
+    else:
+        print("Pulse is not valid")
 
     plt.ylabel('Modified Pulse')
     x = range(Test_Pulse.PulseStart,Test_Pulse.PulseEnd)
