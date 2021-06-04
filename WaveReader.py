@@ -5,6 +5,13 @@ import waveidentifier as wi
 from scipy.stats import norm
 from scipy.optimize import curve_fit
 import argparse
+from datetime import datetime
+
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
+print("Current Time =", current_time)
+
 
 # Instantiate the parser
 parser = argparse.ArgumentParser()
@@ -91,19 +98,32 @@ while pulse < Number_Of_Pulses and Iterator < len(Waveform_Bottom_PMT)/LenWavefo
 if args.Alignment == False:
     if len(Pulse_List_Top)>(Number_Of_Pulses/10):
         Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
+        actual_mean = sum(Ratio)/len(Ratio)
+        data_dev = [(R-actual_mean)*(R-actual_mean) for R in Ratio]
+        actual_std = np.sqrt(sum(data_dev)/len(data_dev))
         #Create Fit bins
         fit_x = np.linspace(0,3,100)
         #---- Fit I/I_0
         fit_entries, fit_bins = np.histogram(Ratio,bins=fit_x)
         binscenters = np.array([0.5 * (fit_x[i] + fit_x[i+1]) for i in range(len(fit_x)-1)])
         popt, pcov = curve_fit(Gaussian, xdata=binscenters, ydata=fit_entries)
-        print("Mean = {}, Std = {}".format(popt[1],abs(popt[2])))
+        print("Fit_Mean = {}, Fit_Std = {}".format(popt[1],abs(popt[2])))
+        print("Actual mean = {}, Actual std = {}".format(actual_mean,actual_std))
+        print("BotPMT{}:".format(sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)))
+        print("TopPMT{}:".format(sum(Pulse_List_Top)/len(Pulse_List_Top)))
         plt.hist(Ratio,bins=100)
         plt.xlabel('I/I${_0}$')
         plt.ylabel('Total Per Bin(A.U.)')
-        y = Gaussian(binscenters,3.5*abs(popt[0])/5,abs(popt[1]),abs(popt[2]))
+        y = Gaussian(binscenters,10*abs(popt[0])/5,abs(popt[1]),abs(popt[2]))
         plt.plot(binscenters, y)
         plt.show()
+        Bot = sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)        
+        Top = sum(Pulse_List_Top)/len(Pulse_List_Top)
+       	file1 = open("test1.txt", "a")
+        file1.write(str(current_time)+" "+str(Bot)+" "+str(Top))
+        file1.write("\n")
+        file1.close()
+
 
     else:
         print("Not Enough data")
@@ -112,6 +132,6 @@ else:
     if len(Pulse_List_Top)>(Number_Of_Pulses/10):
         print('{} {} {}'.format(sum(Ratio)/len(Ratio),sum(Pulse_List_Top)/len(Pulse_List_Top),sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)))
     else:
-        print("N/A")
-        print("invalid Pulse number = {}".format(invalid_pulse_number))
+        print("0 0 0")
+       # print("invalid Pulse number = {}".format(invalid_pulse_number))
 
