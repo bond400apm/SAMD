@@ -7,8 +7,8 @@ Scanning_Angle_Increment=1
 Scanning_Pitch=0
 Scanning_Pitch_Increment=1
 old=`date +%s%2N`
-Stage_time=0.3
-while [ $Scanning_Angle -lt 6 ]; do
+Stage_time=0.25
+while [ $Scanning_Angle -lt 4 ]; do
     while [ $Scanning_Pitch -lt 10 ]; do
 	(echo "s" && sleep 1s && echo "W" && sleep 3s && echo "s" && echo "q") | wavedump
 	cp wave1.txt ./wavedata/topwave$Scanning_Angle$Scanning_Pitch.txt

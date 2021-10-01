@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import random
 # ---- the trigger height of noise
-edge_trigger = -50
+edge_trigger = -20
 # window length of finding Pulse edge
 window_length = 5
 # Pulse height trigger
-Pulse_height = 250
+Pulse_height = 200
 class PulseIdentifier():
     def __init__(self,waveform):
         self.waveform = waveform
@@ -44,7 +44,7 @@ class PulseIdentifier():
         derivative_window = []
         IsPulse = False
         time = 0
-        while IsPulse == False and time < 250:
+        while IsPulse == False and time < 280:
             wave_window[:] = [self.waveform[i] for i in range(time,time+window_length)]
             derivative_window[:] = [self.derivative[j] for j in range(time,time+window_length)]
             if abs(wave_window[window_length-1] - wave_window[0]) > Pulse_height and derivative_window[0]<0:
@@ -52,7 +52,7 @@ class PulseIdentifier():
             else:
                 IsPusle = False
                 time = time + 1
-        if time >= 150 or time <= 10:
+        if time >= 250 or time <= 70:
             self.data_valid = False
         self.PulseStart = time
         return time
@@ -61,14 +61,14 @@ class PulseIdentifier():
         derivative_window = []
         IsPulse = True
         time = self.PulseStart+window_length
-        while IsPulse == True and time<250:
+        while IsPulse == True and time<299:
             if abs(self.waveform[time] - self.Pedstal) < abs(edge_trigger):
                 IsPulse = False
             else:
                 IsPusle = True
                 time = time + 1
         self.PulseEnd = time
-        if time>240:
+        if time>299:
             self.data_valid = False
         return time
     def Process(self,start_b,end_b):
@@ -84,13 +84,13 @@ if __name__ == "__main__":
     LenWaveform = 300
 
     #---- Inputs for pedestal calculation
-    Start_Baseline = 250
-    End_Baseline   = 300
+    Start_Baseline = 1
+    End_Baseline   = 50
 
     #---- Pulse information
     Number_Of_Pulses  = 7000
     Processing_Waveform = []
-    with open("wave0.txt") as file:
+    with open("wave1.txt") as file:
         Waveform_Bottom_PMT = [int(line.strip()) for line in file]
     Pulse_id = random.randint(1,Number_Of_Pulses)
     for i in range(LenWaveform):

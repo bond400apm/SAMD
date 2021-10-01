@@ -19,8 +19,8 @@ This script Automatically analyse data from digitizer every 1 minute while the m
 Fast_Beam_Maximiser.sh
 The same as Beam_Maximiser, only faster. It takes stage rest time in to consideration for high precision. It doesn't analyse the data directly, but store the raw data into wavedata/ directory, which can later be analized. 
 For stage step = 0.1 mm, stage rest time is set to 0.54s, rotation stage rest time = 1:44:900
-For stage step = 0.02 mm, stage rest time is set to 0.37s, rotation stage rest time = 1:42.000
+For stage step = 0.02 mm, stage rest time is set to 0.3s, rotation stage rest time = 1:42.200
 For stage step = 0.01 mm, stage rest time is set to 0.25s, rotation stage rest time = 1:41.900
-
+For stage step = 0.03 mm, stage rest time si set to 0.35s, rotation stage rest time = 1:42.800
 FastAnaliser.sh
 This script is used to analyse the raw data collected bt Fast_Beam_Maximiser.sh

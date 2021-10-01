@@ -8,10 +8,7 @@ import argparse
 from datetime import datetime
 
 now = datetime.now()
-
 current_time = now.strftime("%H:%M:%S")
-print("Current Time =", current_time)
-
 
 # Instantiate the parser
 parser = argparse.ArgumentParser()
@@ -26,8 +23,8 @@ def Gaussian(x, Amp1, mu1, sigma1):
 LenWaveform = 300
 
 #---- Inputs for pedestal calculation
-Start_Baseline = 250
-End_Baseline   = 300
+Start_Baseline = 1
+End_Baseline   = 50
 
 #---- Pulse information
 Number_Of_Pulses  = 7000
@@ -74,11 +71,14 @@ while pulse < Number_Of_Pulses and Iterator < len(Waveform_Bottom_PMT)/LenWavefo
     Processing_Waveform_Top[:] = [Processing_Waveform_Top - Pedestal_Top for Processing_Waveform_Top in Processing_Waveform_Top]
     Total_Integral_Bottom = 0
     Total_Integral_Top = 0
-    if Bottom.data_valid and Top.data_valid:
+#    if Bottom.data_valid and Top.data_valid:
+    if Bottom.data_valid:
         #---- Integrate the pulse
-        for i in range(Top.PulseStart,Top.PulseEnd):
+#        for i in range(Top.PulseStart,Top.PulseEnd):
+        for i in range(100,151):
             Total_Integral_Top += Processing_Waveform_Top[i]
-        for i in range(Bottom.PulseStart,Bottom.PulseEnd):
+        for i in range(100,151):
+#        for i in range(Bottom.PulseStart,Bottom.PulseEnd):
             Total_Integral_Bottom += Processing_Waveform_Bottom[i]
     else:
         invalid_pulse_number += 1
@@ -86,8 +86,8 @@ while pulse < Number_Of_Pulses and Iterator < len(Waveform_Bottom_PMT)/LenWavefo
 
 
 #    print(Total_Integral_Top)
-
-    if (Total_Integral_Bottom < -2000 and Total_Integral_Top < -2000):
+    if (Total_Integral_Bottom < -2000):
+#    if (Total_Integral_Bottom < -2000 and Total_Integral_Top < -2000):
         Pulse_List_Bottom.append(Total_Integral_Bottom)
         Pulse_List_Top.append(Total_Integral_Top)
         pulse += 1
@@ -96,6 +96,7 @@ while pulse < Number_Of_Pulses and Iterator < len(Waveform_Bottom_PMT)/LenWavefo
     
 #---- Find I/I_0 for all the pulses
 if args.Alignment == False:
+    pressure = float(input("tell me what is the pressure:"))
     if len(Pulse_List_Top)>(Number_Of_Pulses/10):
         Ratio = [i/j for i,j in zip(Pulse_List_Top, Pulse_List_Bottom)]
         actual_mean = sum(Ratio)/len(Ratio)
@@ -107,22 +108,24 @@ if args.Alignment == False:
         fit_entries, fit_bins = np.histogram(Ratio,bins=fit_x)
         binscenters = np.array([0.5 * (fit_x[i] + fit_x[i+1]) for i in range(len(fit_x)-1)])
         popt, pcov = curve_fit(Gaussian, xdata=binscenters, ydata=fit_entries)
-        print("Fit_Mean = {}, Fit_Std = {}".format(popt[1],abs(popt[2])))
+        #print("Fit_Mean = {}, Fit_Std = {}".format(popt[1],abs(popt[2])))
         print("Actual mean = {}, Actual std = {}".format(actual_mean,actual_std))
         print("BotPMT{}:".format(sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)))
         print("TopPMT{}:".format(sum(Pulse_List_Top)/len(Pulse_List_Top)))
+        print(max(Ratio))
         plt.hist(Ratio,bins=100)
         plt.xlabel('I/I${_0}$')
         plt.ylabel('Total Per Bin(A.U.)')
-        y = Gaussian(binscenters,10*abs(popt[0])/5,abs(popt[1]),abs(popt[2]))
-        plt.plot(binscenters, y)
+        y = Gaussian(binscenters,popt[0],popt[1],abs(popt[2]))
+        plt.plot(binscenters, y/7)
         plt.show()
         Bot = sum(Pulse_List_Bottom)/len(Pulse_List_Bottom)        
         Top = sum(Pulse_List_Top)/len(Pulse_List_Top)
-       	file1 = open("test1.txt", "a")
-        file1.write(str(current_time)+" "+str(Bot)+" "+str(Top))
+       	file1 = open("0604data_v2.txt", "a")
+        file1.write(str(current_time)+" "+str(pressure)+" "+str(actual_mean)+" "+str(Bot))
+       # file1.write(str(current_time)+" "+str(Bot)+" "+str(Top))
         file1.write("\n")
-        file1.close()
+       # file1.close()
 
 
     else:
